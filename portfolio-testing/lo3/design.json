@@ -2,10 +2,10 @@
   "oracle_version": "lo3-equations-v1",
   "scope": ["snntorch/_neurons/neurons.py", "snntorch/_neurons/leaky.py", "snntorch/_neurons/synaptic.py", "snntorch/surrogate.py", "snntorch/spikegen.py", "snntorch/utils.py", "snntorch/spikevision/neuromorphic_dataset.py"],
   "numerics": {"float32": {"rtol": 0.00001, "atol": 0.000001}, "float64": {"rtol": 0.0000000001, "atol": 0.000000000001}},
-  "rate": {"n": 10000, "family_alpha": 0.01, "probabilities": [0.1, 0.5, 0.9], "seeds": [17, 29, 43], "method": "two-sided equal-tail exact binomial, Bonferroni over nine counts"},
+  "rate": {"n": 10000, "family_alpha": 0.01, "probabilities": [0.1, 0.5, 0.9], "seeds": [17, 29, 43], "method": "Use a two-sided exact binomial interval with equal tails and adjust for nine counts with Bonferroni."},
   "device": "cpu",
   "model_cases": 1000,
   "manifest_seed": 20261102,
-  "threshold": "strictly greater, following fire() and Leaky prose; inclusive equations conflict and remain documented",
-  "reset_timing": "delayed reset from previous membrane; no immediate-reset option in this fork"
+  "threshold": "Use strict greater-than firing, as in fire() and the Leaky prose. Other documented equations include equality.",
+  "reset_timing": "Delayed reset is the only option in this fork. It uses the previous membrane."
 }

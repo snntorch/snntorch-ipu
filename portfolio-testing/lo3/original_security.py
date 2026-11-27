@@ -1,7 +1,8 @@
-"""Replay corrected security harness against exact starting-commit downloader.
+"""Run the corrected dataset checks against the downloader from the starting commit.
 
-Uses a temporary import, never overwrites current production files.
+Import that version from a temporary directory so the checkout stays intact.
 """
+
 import importlib.util
 import os
 from pathlib import Path
@@ -11,8 +12,8 @@ import tempfile
 
 import pytest
 
-HERE=Path(__file__).resolve().parent
-OUT=HERE/"evidence"/"original-security"
+HERE = Path(__file__).resolve().parent
+OUT = HERE / "evidence" / "original-security"
 
 
 def main():
@@ -23,16 +24,31 @@ def main():
     )
     OUT.mkdir(parents=True, exist_ok=False)
     with tempfile.TemporaryDirectory(prefix="lo3-original-") as td:
-        path=Path(td)/"original.py";path.write_bytes(original)
-        spec=importlib.util.spec_from_file_location("snntorch.spikevision.lo3_original",path)
-        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        path = Path(td) / "original.py"
+        path.write_bytes(original)
+        spec = importlib.util.spec_from_file_location(
+            "snntorch.spikevision.lo3_original", path
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
         class OriginalPlugin:
-            def pytest_collection_modifyitems(self,items):
+            def pytest_collection_modifyitems(self, items):
                 for item in items:
-                    if item.module.__name__=="test_security":item.module.ds=module
-        os.environ["LO3_RESULTS"]=str(OUT/"results.json")
-        return pytest.main([str(HERE/"tests"/"test_security.py"),"-q","--tb=short",
-                            "--junitxml="+str(OUT/"results.xml")],plugins=[OriginalPlugin()])
+                    if item.module.__name__ == "test_security":
+                        item.module.ds = module
+
+        os.environ["LO3_RESULTS"] = str(OUT / "results.json")
+        return pytest.main(
+            [
+                str(HERE / "tests" / "test_security.py"),
+                "-q",
+                "--tb=short",
+                "--junitxml=" + str(OUT / "results.xml"),
+            ],
+            plugins=[OriginalPlugin()],
+        )
 
 
-if __name__=="__main__":sys.exit(main())
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,3 +1,5 @@
+"""Isolate the neuron registry for each test and save case observations."""
+
 import json
 import os
 from pathlib import Path
@@ -21,9 +23,11 @@ def isolate_registry():
 @pytest.fixture
 def evidence(request):
     records = []
+
     def save(**values):
         records.append(values)
         request.node.user_properties[:] = [("evidence", json.dumps(records))]
+
     return save
 
 
@@ -32,9 +36,15 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
     if report.when == "call" or (report.when == "setup" and report.failed):
-        RECORDS.append(dict(id=report.nodeid, outcome=report.outcome, duration=report.duration,
-                            details=dict(report.user_properties),
-                            failure=str(report.longrepr) if report.failed else None))
+        RECORDS.append(
+            dict(
+                id=report.nodeid,
+                outcome=report.outcome,
+                duration=report.duration,
+                details=dict(report.user_properties),
+                failure=str(report.longrepr) if report.failed else None,
+            )
+        )
 
 
 def pytest_sessionfinish(session, exitstatus):
